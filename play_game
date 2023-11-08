@@ -1,0 +1,62 @@
+# there are 3 6-sided dice and there are two choose 6 different operations we can do on those 3 dice.
+import numpy as np
+import itertools
+import math
+def possiblities(num_of_dice=3, allowed_operations=6):
+    arrange_dice=math.factorial(num_of_dice)
+    arrage_operators=(math.factorial(allowed_operations)//(math.factorial(allowed_operations-num_of_dice+1)))
+    return arrage_operators*arrange_dice
+
+
+def plus(a,b):
+    return a+b
+
+def minus(a,b):
+    return a-b
+
+def to_the_power_of(a,b):
+    return a**b
+
+def root(a,b):
+    total=a**(1/b)
+    if np.isreal(total):
+        return total
+    else:
+        return np.nan
+def multiplied_by(a,b):
+    return a*b
+
+def divided_by(a,b):
+    return a/b
+
+
+def run_game(input_reg_dice,input_goal_dice, operations=[plus, minus, to_the_power_of, root, multiplied_by, divided_by]):
+    dice_perm=list(itertools.permutations(input_reg_dice))
+    opp_perm=list(itertools.permutations(operations,2))
+    assert len(dice_perm)*len(opp_perm)==possiblities(len(input_reg_dice), len(operations))
+    output_list=[]
+    for dice_combo in dice_perm:
+        for opp in opp_perm:
+
+            total= opp[0](dice_combo[0],dice_combo[1])
+            for i in range(1,len(opp)):
+                total=opp[i](total, dice_combo[i+1])
+            output_list.append([total, opp, dice_combo])
+
+    out_arr = np.array(output_list, dtype='object')
+    distance_from_goal=np.absolute(out_arr[:,0]-np.prod(np.array(input_goal_dice)))
+    min_dist=np.nanmin(distance_from_goal)
+    indx=np.where(distance_from_goal==min_dist)[0][0]
+    sol=out_arr[indx]
+    print(sol[0], ':\n')
+
+    for i in range(len(input_reg_dice)):
+        print(sol[2][i])
+        if i<len(input_reg_dice)-1:
+            print(sol[1][i].__name__)
+
+
+
+
+run_game([4,2,3],[1,5,10])
+
